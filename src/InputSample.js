@@ -1,4 +1,4 @@
-import React ,{useState} from 'react';
+import React ,{useState,useRef} from 'react';
 
 function InputSample(){
   // const [text, setText]= useState('');
@@ -29,6 +29,12 @@ function InputSample(){
     name:'',
     nickname: '',
   });
+  //focus 초기화버튼 눌르면 input name으로 옴겨주기
+  // import React ,{useState,useRef} 선언한후 from 'react';
+  //상수 선언 const 상수 = useRef();
+  // input 태그안에 ref={상수} 선언해줌
+ const nameInput=useRef();
+
  
   const {name, nickname}=inputs; //name과 nickname을 비교적할당으로 추출하기
   const onChange= (e) => {
@@ -55,11 +61,12 @@ function InputSample(){
       nickname:'',
 
     });
+    nameInput.current.focus();
 
   };
   return (
     <div>
-      <input name="name" placeholder="이름" onChange={onChange} value={name}/>
+      <input name="name" placeholder="이름" onChange={onChange} value={name} ref={nameInput}/>
       <input name="nickname" placeholder="닉네임" onChange={onChange} value={nickname}/>
       <button onClick={onReset}>초기화</button>
       <div>
