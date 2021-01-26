@@ -1,4 +1,4 @@
-import React,{useRef,useState,useMemo} from 'react';
+import React,{useRef,useState,useMemo,useCallback} from 'react';
 //import ReactDOM from 'react-dom';
 //import Hello from './Hello';
 //import Wrapper from './Wrapper';
@@ -6,6 +6,10 @@ import React,{useRef,useState,useMemo} from 'react';
 //import InputSample from './InputSample';
 import UserList from './UserList';
 import CreateUser from './CreateUser';
+
+
+
+//useCallback 함수를 재사용하기위한 명령어 useMemo와는 비슷하지만 함수를 재사용하는데 초점이 맞춰져잇다.useMemo는 연산을 해서 값이 바뀌지않으면 전의값을 재사용햇지만 
    //useMemo hook 특정값이 바뀌엇을때만 특정함수를 실행하면서  연산되게하고 만약에 원햇던값이 바뀌지않앗더라면
    // 리랜더링될때 전에 잇던값을 재사용할수있게 해준다.
    function countActiveUsers(users){//users의 배열을 받아 함수를 구현한다.
@@ -94,13 +98,13 @@ function App() {
     email:'',
   })
   const {username,email} = inputs;// inputs로 username email등을 추출해준다.
-  const onChange = e=>{
+  const onChange = useCallback(e=>{
     const { name, value} =e.target;//e.target으로 namer값정해지면 value값을 덮어써준다.
     setInputs({
       ...inputs,//값을 복사해서 spred 
       [name]: value
     });
-  };
+  },[inputs]);
   //users의 배열이 컴포넌트 상태로써 관리가 되지않고있기때문에 useState로 바꿔줘야한다.
    const [users,setUsers]=useState([
      {
@@ -123,7 +127,7 @@ function App() {
      } 
    ]);
    const nextId= useRef(4);
-   const onCreate = ()=>{
+   const onCreate = useCallback(()=>{
      //새로운 객체 유저를 만들어준다
      const user= {
        id: nextId.current,
@@ -143,15 +147,15 @@ function App() {
      });
      console.log(nextId.current);//4
      nextId.current +=1;
-   };
-   const onRemove = id=>{
+   },[username,email,users]);
+   const onRemove =useCallback( id=>{
      setUsers(users.filter(user => user.id !== id));
-   };
-   const onToggle= id=> {
+   },[users]);
+   const onToggle= useCallback(id=> {
      setUsers(users.map(
        user=> user.id=== id? {...user,active:!user.active} : user
      ));
-   };
+   },[users]);
    const count=useMemo(()=>countActiveUsers(users),[users]);
    //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
   //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
