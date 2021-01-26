@@ -1,4 +1,4 @@
-import React,{useRef,useState} from 'react';
+import React,{useRef,useState,useMemo} from 'react';
 //import ReactDOM from 'react-dom';
 //import Hello from './Hello';
 //import Wrapper from './Wrapper';
@@ -6,7 +6,13 @@ import React,{useRef,useState} from 'react';
 //import InputSample from './InputSample';
 import UserList from './UserList';
 import CreateUser from './CreateUser';
+   //useMemo hook 특정값이 바뀌엇을때만 특정함수를 실행하면서  연산되게하고 만약에 원햇던값이 바뀌지않앗더라면
+   // 리랜더링될때 전에 잇던값을 재사용할수있게 해준다.
+   function countActiveUsers(users){//users의 배열을 받아 함수를 구현한다.
+    console.log('활성 사용자 수를 세는중');
+    return users.filter(user=> user.active).length;//users.filter활성화된 user의 길이를 구하라
 
+   };
 
 // function App() {
 //   const name="react";
@@ -100,17 +106,20 @@ function App() {
      {
        id:1,
        username:'velopert',
-       email:'public.velopert@gmail.com'
+       email:'public.velopert@gmail.com',
+       active:true,
      },
      {
        id:2,
        username:'tester',
-       email:'tester@gmail.com'
+       email:'tester@gmail.com',
+       active:false,
      },
      {
        id:3,
        username:'liz',
-       email:'liz@gmail.com'
+       email:'liz@gmail.com',
+       active:false,
      } 
    ]);
    const nextId= useRef(4);
@@ -134,13 +143,27 @@ function App() {
      });
      console.log(nextId.current);//4
      nextId.current +=1;
-   }
-
+   };
+   const onRemove = id=>{
+     setUsers(users.filter(user => user.id !== id));
+   };
+   const onToggle= id=> {
+     setUsers(users.map(
+       user=> user.id=== id? {...user,active:!user.active} : user
+     ));
+   };
+   const count=useMemo(()=>countActiveUsers(users),[users]);
+   //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
+  //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
+  
    return (
      <>
       <CreateUser username={username}
-      email={email} onChange={onChange} onCreate={onCreate}/>
-      <UserList users={users}/>
+      email={email}
+       onChange={onChange}
+       onCreate={onCreate}/>
+      <UserList users={users} onRemove={onRemove} onToggle={onToggle}/>
+      <div>활성 사용자 수 : {count}</div>
      </>
    )
 
