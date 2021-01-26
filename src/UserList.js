@@ -1,18 +1,18 @@
 import React,{useEffect} from 'react';
 
-function User({user,onRemove,onToggle}){
+const User=React.memo(function User({user,onRemove,onToggle}){
     const {username,email,id,active}=user;//username, email, id를 user로 추출해준다.
 
 
    //배열을 사용하게되면
-   useEffect(()=>{
-    console.log('user값이 설정됨');   
-    console.log(user);
-    return ()=>{
-        console.log('user 값이 바뀌기전');
-        console.log(user);
-    }
-   },[user]);//useEffect함수는 user가 호출될때마다 실행되고 useEffect함수는  특정값이 업데이트된후에 실행이된다.
+//    useEffect(()=>{
+//     console.log('user값이 설정됨');   
+//     console.log(user);
+//     return ()=>{
+//         console.log('user 값이 바뀌기전');
+//         console.log(user);
+//     }
+//    },[user]);//useEffect함수는 user가 호출될때마다 실행되고 useEffect함수는  특정값이 업데이트된후에 실행이된다.
 
     // useEffect(()=>{
     //     console.log('컴포넌트가 화면에 나타남');//deps dependency약자[]
@@ -38,7 +38,7 @@ function User({user,onRemove,onToggle}){
         <button onClick={()=>onRemove(id)}>삭제</button>
     </div>
     )
-}
+});
 
 function UserList({users,onRemove,onToggle}){//props로 users를 App.js에서 받아온다.
     // const users=[
@@ -83,4 +83,6 @@ function UserList({users,onRemove,onToggle}){//props로 users를 App.js에서 �
         </div>
     )
 }
-export default UserList;
+export default React.memo(UserList,
+    (prevProps,nextProps) => 
+    nextProps.users === prevProps.users);

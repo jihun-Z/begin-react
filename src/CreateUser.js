@@ -12,4 +12,4 @@ function CreateUser({ username, email, onChange, onCreate}) {
       );
 }
 //컴포넌트 내보내기
-export default CreateUser;
+export default React.memo(CreateUser);

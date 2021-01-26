@@ -138,7 +138,7 @@ function App() {
      
     // setUsers([...users,user]);//이렇게하면은 기존의 배열을 복사하고 새로운 항목을 추가해준다.
      
-     setUsers(users.concat(user));//concat을 이용해서 하는방법
+     setUsers(users => users.concat(user));//concat을 이용해서 하는방법
      
      //onCreate버튼이 클릭될때 값을 등록하고 지운다
      setInputs({
@@ -147,15 +147,17 @@ function App() {
      });
      console.log(nextId.current);//4
      nextId.current +=1;
-   },[username,email,users]);
+   },[username,email]);
+
    const onRemove =useCallback( id=>{
-     setUsers(users.filter(user => user.id !== id));
-   },[users]);
+     setUsers(users => users.filter(user => user.id !== id));
+   },[]);
+
    const onToggle= useCallback(id=> {
-     setUsers(users.map(
+     setUsers(users =>users.map(
        user=> user.id=== id? {...user,active:!user.active} : user
      ));
-   },[users]);
+   },[]);
    const count=useMemo(()=>countActiveUsers(users),[users]);
    //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
   //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
