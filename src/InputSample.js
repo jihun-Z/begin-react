@@ -50,6 +50,7 @@ function InputSample(){
    //기존상태를 복사하고나서 
    //그곳에 특정값을 덮어씌우고 새로운 상태로 설정해줘야한다
    //이런것을 불변성을 지킨다라고 한다.
+   //dom을 사용하게되면 useRef 훅을 사용하게된다.
     setInputs({
       ...inputs,
       [name]:value,
@@ -66,8 +67,10 @@ function InputSample(){
   };
   return (
     <div>
-      <input name="name" placeholder="이름" onChange={onChange} value={name} ref={nameInput}/>
-      <input name="nickname" placeholder="닉네임" onChange={onChange} value={nickname}/>
+      <input name="name" placeholder="이름"
+       onChange={onChange} value={name} ref={nameInput}/>
+      <input name="nickname" placeholder="닉네임"
+       onChange={onChange} value={nickname}/>
       <button onClick={onReset}>초기화</button>
       <div>
         <b>값:</b>

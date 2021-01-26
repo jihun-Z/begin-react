@@ -10,14 +10,14 @@ function Counter(){
     const increase=() =>{
         console.log('+1');
         //number+1은 이거다
-       // setNumber(number+1);
+        setNumber(number+1);
        //함수형 업데이트라고 불른다.나중에 최적화하기에 도움이된다.
        //prevNumber(업데이트하기전) 을 => prevNumber + 1(이렇게 업데이트할거야)라고 이해하기 
        setNumber(prevNumber => prevNumber +1);
     }
     const decrease=() =>{
         console.log('-1');
-       // setNumber(number-1);
+       setNumber(number-1);
         setNumber(prevNumber => prevNumber -1);
     }
     return (

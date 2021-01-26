@@ -8,25 +8,25 @@ function User({user}){
     )
 }
 
-function UserList(){
-    const users=[
+function UserList({users}){//props로 users를 App.js에서 받아온다.
+    // const users=[
         
-            { id: 1,
-                username: 'velopert',
-                    email:'public@naver.com'
-            } ,
-            {
-                id:2,
-                username: 'leejihun',
-                email:'liz@naver.com'
+    //         { id: 1,
+    //             username: 'velopert',
+    //                 email:'public@naver.com'
+    //         } ,
+    //         {
+    //             id:2,
+    //             username: 'leejihun',
+    //             email:'liz@naver.com'
             
-            },
-            {
-                id:3,
-                username: 'its',
-                email: 'its@naver.com'            
-            }
-    ];
+    //         },
+    //         {
+    //             id:3,
+    //             username: 'its',
+    //             email: 'its@naver.com'            
+    //         }
+    // ];
     return (
         // <div>
         //     <div>
@@ -42,7 +42,7 @@ function UserList(){
         <div>
             {
                 users.map(
-                    user => (<User user={user}/>)
+                   (user, index) => (<User user={user} key={user.id}/>)
                     )
                     
           }
