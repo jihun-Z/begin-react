@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import ContextSample from './ContextSample';
 //import *as serviceWorker from './serviceWorker';
 //import Counter from './Counter';
 
 ReactDOM.render(
 
-    <App />
+    <ContextSample />
 ,
   document.getElementById('root')
 );
