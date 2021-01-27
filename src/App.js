@@ -1,4 +1,4 @@
-import React,{useRef,useState,useMemo,useCallback} from 'react';
+import React,{useRef,useReducer,useMemo,useCallback} from 'react';
 //import ReactDOM from 'react-dom';
 //import Hello from './Hello';
 //import Wrapper from './Wrapper';
@@ -6,6 +6,7 @@ import React,{useRef,useState,useMemo,useCallback} from 'react';
 //import InputSample from './InputSample';
 import UserList from './UserList';
 import CreateUser from './CreateUser';
+import useInputs from './useInputs';
 
 
 
@@ -92,83 +93,128 @@ import CreateUser from './CreateUser';
 //   )
 // }
 // export default App4;
+
+const initialState ={
+  // inputs:{
+  //   username:'',
+  //   email: '',
+  // },
+  users:[
+    {
+      id:1,
+      username:'velopert',
+      email:'public.velopert@gmail.com',
+      active:true,
+    },
+    {
+      id:2,
+      username:'tester',
+      email:'tester@gmail.com',
+      active:false,
+    },
+    {
+      id:3,
+      username:'liz',
+      email:'liz@gmail.com',
+      active:false,
+    } 
+  ]
+}
+
+function reducer(state,action){
+  switch(action.type){
+    case 'CHANGE_INPUT':
+      return {
+        ...state,
+        inputs:{
+          ...state.inputs,
+          [action.name]:action.value
+        }
+      };
+      case 'CREATE_USER':
+        return{
+          inputs:initialState.inputs,
+          users:state.users.concat(action.user)
+        }
+        case 'TOGGLE_USER':
+          return{
+            ...state,
+            users:state.users.map(user => 
+              user.id===action.id?
+              {...user,active: !user.active}
+              :user //같지않으면 전에 user를 유지하겟다.
+              )
+          };
+          case 'REMOVE_USER':
+            return{
+              ...state,
+              users:state.users.filter(user => user.id !== action.id)
+                
+            }
+      default:
+        throw new Error('Unhandled action');
+  }
+}
+
 function App() {
-  const [inputs,setInputs]=useState({
-    username :'',
-    email:'',
-  })
-  const {username,email} = inputs;// inputs로 username email등을 추출해준다.
-  const onChange = useCallback(e=>{
-    const { name, value} =e.target;//e.target으로 namer값정해지면 value값을 덮어써준다.
-    setInputs({
-      ...inputs,//값을 복사해서 spred 
-      [name]: value
-    });
-  },[inputs]);
-  //users의 배열이 컴포넌트 상태로써 관리가 되지않고있기때문에 useState로 바꿔줘야한다.
-   const [users,setUsers]=useState([
-     {
-       id:1,
-       username:'velopert',
-       email:'public.velopert@gmail.com',
-       active:true,
-     },
-     {
-       id:2,
-       username:'tester',
-       email:'tester@gmail.com',
-       active:false,
-     },
-     {
-       id:3,
-       username:'liz',
-       email:'liz@gmail.com',
-       active:false,
-     } 
-   ]);
-   const nextId= useRef(4);
-   const onCreate = useCallback(()=>{
-     //새로운 객체 유저를 만들어준다
-     const user= {
-       id: nextId.current,
-       username,
-       email,
-     };
-     //spread복사를 통해서 배열복사를한다.
-     
-    // setUsers([...users,user]);//이렇게하면은 기존의 배열을 복사하고 새로운 항목을 추가해준다.
-     
-     setUsers(users => users.concat(user));//concat을 이용해서 하는방법
-     
-     //onCreate버튼이 클릭될때 값을 등록하고 지운다
-     setInputs({
-       username:'',
-       email:''
-     });
-     console.log(nextId.current);//4
-     nextId.current +=1;
-   },[username,email]);
+ const[state,dispatch]=useReducer(reducer,initialState);
+ const [form,onChange,reset]= useInputs({
+   username:'',
+   email:'',
+ });
+ const {username,email}= form;
+ const nextId=useRef(4);
+ const {users} =state;
+ //const { username, email}=state.inputs;
 
-   const onRemove =useCallback( id=>{
-     setUsers(users => users.filter(user => user.id !== id));
-   },[]);
+// const onChange=useCallback(e=> {
+// const{name,value}=e.target;
+// dispatch({
+//   type:'CHANGE_INPUT',
+//   name,
+//   value
+// })
+// },[]);
+const onCreate = useCallback(()=>{
+  dispatch({
+    type:'CREATE_USER',
+    user:{
+      id:nextId.current,
+      username,
+      email,
+    }
+  });
+  nextId.current +=1;
+  reset();
+},[username,email,reset]);
 
-   const onToggle= useCallback(id=> {
-     setUsers(users =>users.map(
-       user=> user.id=== id? {...user,active:!user.active} : user
-     ));
-   },[]);
-   const count=useMemo(()=>countActiveUsers(users),[users]);
+const onToggle =useCallback(id => {
+  dispatch({
+    type:'TOGGLE_USER',
+    id
+  });
+},[]);
+const onRemove = useCallback(id =>{
+  dispatch({
+    type:'REMOVE_USER',
+    id
+
+  });
+},[]);
+
+const count = useMemo (()=> countActiveUsers(users),[users]);
+
    //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
   //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
   
    return (
      <>
-      <CreateUser username={username}
+      <CreateUser 
+      username={username}
       email={email}
-       onChange={onChange}
-       onCreate={onCreate}/>
-      <UserList users={users} onRemove={onRemove} onToggle={onToggle}/>
+      onChange={onChange}
+      onCreate={onCreate} />
+      <UserList users={users} onToggle={onToggle} onRemove={onRemove}/>
       <div>활성 사용자 수 : {count}</div>
      </>
    )

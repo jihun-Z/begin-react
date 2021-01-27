@@ -4,11 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 //import *as serviceWorker from './serviceWorker';
-import Counter from './Counter';
+//import Counter from './Counter';
 
 ReactDOM.render(
 
-    <Counter />
+    <App />
 ,
   document.getElementById('root')
 );

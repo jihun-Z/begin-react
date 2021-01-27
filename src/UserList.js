@@ -1,5 +1,7 @@
 import React,{useEffect} from 'react';
 
+
+
 const User=React.memo(function User({user,onRemove,onToggle}){
     const {username,email,id,active}=user;//username, email, id를 user로 추출해준다.
 
