@@ -9,7 +9,7 @@ import ContextSample from './ContextSample';
 
 ReactDOM.render(
 
-    <ContextSample />
+    <App />
 ,
   document.getElementById('root')
 );

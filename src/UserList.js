@@ -1,9 +1,10 @@
-import React,{useEffect} from 'react';
+import React,{useContext} from 'react';
 
+import {UserDispatch} from './App';
 
-
-const User=React.memo(function User({user,onRemove,onToggle}){
+const User=React.memo(function User({user}){
     const {username,email,id,active}=user;//username, email, id를 user로 추출해준다.
+    const dispatch = useContext(UserDispatch);
 
 
    //배열을 사용하게되면
@@ -32,17 +33,23 @@ const User=React.memo(function User({user,onRemove,onToggle}){
                 color:active ? 'green':'black',
                 cursor:'pointer'
                  }}
-                 onClick={()=>onToggle(id)}>
+                 onClick={()=>dispatch({
+                     type:'TOGGLE_USER',
+                     id
+                 })}>
                      {username}
                  </b>
       <span>({email})</span>
         {/* ()=> 함수가 없이 랜더링하게 되면 전체 id를랜더링하기때문에 function을 해줘야특정아이디만 불러온다 */}
-        <button onClick={()=>onRemove(id)}>삭제</button>
+        <button onClick={()=>dispatch({
+            type:'REMOVE_USER',
+            id
+        })}>삭제</button>
     </div>
     )
 });
 
-function UserList({users,onRemove,onToggle}){//props로 users를 App.js에서 받아온다.
+function UserList({users}){//props로 users를 App.js에서 받아온다.
     // const users=[
         
     //         { id: 1,
@@ -76,9 +83,10 @@ function UserList({users,onRemove,onToggle}){//props로 users를 App.js에서 �
         <div>
             {
                 users.map(
-                   (user, index) => (<User user={user} key={user.id}
-                   onRemove={onRemove}
-                   onToggle={onToggle}/>)
+                   (user, index) =>
+                    (<User user={user} 
+                    key={user.id}
+                  />)
                     )
                     
           }

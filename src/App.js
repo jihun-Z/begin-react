@@ -1,4 +1,4 @@
-import React,{useRef,useReducer,useMemo,useCallback} from 'react';
+import React,{useRef,useReducer,useMemo,useCallback,createContext} from 'react';
 //import ReactDOM from 'react-dom';
 //import Hello from './Hello';
 //import Wrapper from './Wrapper';
@@ -6,10 +6,11 @@ import React,{useRef,useReducer,useMemo,useCallback} from 'react';
 //import InputSample from './InputSample';
 import UserList from './UserList';
 import CreateUser from './CreateUser';
-import useInputs from './useInputs';
+import produce from 'immer';
+//import useInputs from './useInputs';
 
 
-
+//window.produce = produce;
 //useCallback 함수를 재사용하기위한 명령어 useMemo와는 비슷하지만 함수를 재사용하는데 초점이 맞춰져잇다.useMemo는 연산을 해서 값이 바뀌지않으면 전의값을 재사용햇지만 
    //useMemo hook 특정값이 바뀌엇을때만 특정함수를 실행하면서  연산되게하고 만약에 원햇던값이 바뀌지않앗더라면
    // 리랜더링될때 전에 잇던값을 재사용할수있게 해준다.
@@ -123,48 +124,99 @@ const initialState ={
 
 function reducer(state,action){
   switch(action.type){
-    case 'CHANGE_INPUT':
-      return {
-        ...state,
-        inputs:{
-          ...state.inputs,
-          [action.name]:action.value
+    case 'CREATE_USER':
+      return  produce(state,draft =>{
+        draft.users.push(action.user);
+      })
+      // return{
+      //   users:state.users.concat(action.user)
+      // }
+      case 'TOGGLE_USER':
+         return produce(state,draft =>{
+           const user = draft.users.find(user => user.id ===action.id);
+           user.active = !user.active;
+         })
+        // return{
+        //   ...state,
+        //   users:state.users.map(user =>
+        //     user.id === action.id ? {
+        //       ...user,active: !user.active} :user)
+            
+        // };
+        case 'REMOVE_USER':
+          //immumer 불변성에서는 splice라는 함수를 사용해서 찾을수가 잇는데
+          //splice함수를 이용하려면 index를 사용해야한다.
+          return produce (state,draft =>{
+           const index= draft.users.findIndex(user => user.id === action.id);
+           draft.users.splice(index, 1);//index부터 1개를 없애겟다.
+          });
+          // return {
+          //   ...state,
+          //   users:state.users.filter(user => user.id !== action.id)
+          // };
+          default: 
+            return state;
+          }
         }
-      };
-      case 'CREATE_USER':
-        return{
-          inputs:initialState.inputs,
-          users:state.users.concat(action.user)
+        export const UserDispatch = React.createContext(null);
+        function App(){
+          const [state,dispatch] =useReducer(reducer, initialState);
+          const {users} =state;
+          const count =useMemo(() =>countActiveUsers(users),[users]);
+          return (
+            <UserDispatch.Provider value={dispatch}>
+              <CreateUser/>
+              <UserList users={users}/>
+              <div>활성 사용자 수 : {count}</div>
+            </UserDispatch.Provider>
+          );
         }
-        case 'TOGGLE_USER':
-          return{
-            ...state,
-            users:state.users.map(user => 
-              user.id===action.id?
-              {...user,active: !user.active}
-              :user //같지않으면 전에 user를 유지하겟다.
-              )
-          };
-          case 'REMOVE_USER':
-            return{
-              ...state,
-              users:state.users.filter(user => user.id !== action.id)
+//     case 'CHANGE_INPUT':
+//       return {
+//         ...state,
+//         inputs:{
+//           ...state.inputs,
+//           [action.name]:action.value
+//         }
+//       };
+//       case 'CREATE_USER':
+//         return{
+//           inputs:initialState.inputs,
+//           users:state.users.concat(action.user)
+//         }
+//         case 'TOGGLE_USER':
+//           return{
+//             ...state,
+//             users:state.users.map(user => 
+//               user.id===action.id?
+//               {...user,active: !user.active}
+//               :user //같지않으면 전에 user를 유지하겟다.
+//               )
+//           };
+//           case 'REMOVE_USER':
+//             return{
+//               ...state,
+//               users:state.users.filter(user => user.id !== action.id)
                 
-            }
-      default:
-        throw new Error('Unhandled action');
-  }
-}
+//             }
+//       default:
+//         throw new Error('Unhandled action');
+//   }
+// }
 
-function App() {
- const[state,dispatch]=useReducer(reducer,initialState);
- const [form,onChange,reset]= useInputs({
-   username:'',
-   email:'',
- });
- const {username,email}= form;
- const nextId=useRef(4);
- const {users} =state;
+
+// export const UserDispatch= createContext(null);
+
+
+// function App() {
+//  const[state,dispatch]=useReducer(reducer,initialState);
+//  const [form,onChange,reset]= useInputs({
+//    username:'',
+//    email:'',
+//  });
+//  const {username,email}= form;
+//  const nextId=useRef(4);
+//  const {users} =state;
  //const { username, email}=state.inputs;
 
 // const onChange=useCallback(e=> {
@@ -175,49 +227,49 @@ function App() {
 //   value
 // })
 // },[]);
-const onCreate = useCallback(()=>{
-  dispatch({
-    type:'CREATE_USER',
-    user:{
-      id:nextId.current,
-      username,
-      email,
-    }
-  });
-  nextId.current +=1;
-  reset();
-},[username,email,reset]);
+// const onCreate = useCallback(()=>{
+//   dispatch({
+//     type:'CREATE_USER',
+//     user:{
+//       id:nextId.current,
+//       username,
+//       email,
+//     }
+//   });
+//   nextId.current +=1;
+//   reset();
+// },[username,email,reset]);
 
-const onToggle =useCallback(id => {
-  dispatch({
-    type:'TOGGLE_USER',
-    id
-  });
-},[]);
-const onRemove = useCallback(id =>{
-  dispatch({
-    type:'REMOVE_USER',
-    id
+// const onToggle =useCallback(id => {
+//   dispatch({
+//     type:'TOGGLE_USER',
+//     id
+//   });
+// },[]);
+// const onRemove = useCallback(id =>{
+//   dispatch({
+//     type:'REMOVE_USER',
+//     id
 
-  });
-},[]);
+//   });
+// },[]);
 
-const count = useMemo (()=> countActiveUsers(users),[users]);
+// const count = useMemo (()=> countActiveUsers(users),[users]);
 
-   //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
-  //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
+//    //함수 userActiveUsers함수에 users배열을 받아 count변수로 정해준다.
+//   //deps[users]값이 바뀌지않으면 전에 잇던 값을 재사용한다. deps의 [users]값이 바뀌면 바뀐값을 으로 대체한다.
   
-   return (
-     <>
-      <CreateUser 
-      username={username}
-      email={email}
-      onChange={onChange}
-      onCreate={onCreate} />
-      <UserList users={users} onToggle={onToggle} onRemove={onRemove}/>
-      <div>활성 사용자 수 : {count}</div>
-     </>
-   )
+//    return (
+//      <UserDispatch.Provider value={dispatch}>
+//       <CreateUser 
+//       username={username}
+//       email={email}
+//       onChange={onChange}
+//       onCreate={onCreate} />
+//       <UserList users={users}/>
+//       <div>활성 사용자 수 : {count}</div>
+//      </UserDispatch.Provider>
+//    )
 
-}
+// }
 export default App;
