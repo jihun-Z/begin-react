@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="text/javascript" defer>
+    Notification.requestPermission().then(function(result){
+        console.log(result);
+    });
+
+    function askNotificationPermission(){
+        //권한을 실제로 요구하는 함수
+        function handlePermission(permission){
+            //사용자의 응답에 관계없이 크롬이 정보를 저장할수있도록 함
+            if(!('permission' in Notification)){
+            }
+            //사용자 응답에 따라 단추를 보이거나 숨기도록 설정
+            if(Notication.permission === 'denied' || Notification.permission ==='default'){
+                notificationBtn.style.display='block';
+            }else {
+                notificationBtn.style.display='none';
+            }
+        }
+        //브라우저가 알림을 지원하는 지 확인
+        if(!('Notification' in window)){
+            console.log("이 브라우저는 알림을 지원하지않습니다.");
+        }else{
+            if(checkNotificationPromise()){
+                Notification.requestPermission().then((permission) => {
+                    handlePermission(permission);
+                })
+            }else{
+                Notification.requestPermission(function(permission){
+                    handlePermission(permission);
+                });
+            }
+        }
+    }
+
+    //프로미스버전을 지원하는지확인하는 함수
+    function checkNotificationPromise(){
+        try{
+            Notification.requestPermission().then();
+        }catch(e){
+            return false;
+        }
+        return true;
+    }
+</script>
+<body>
+    <button id="enable">알림 허용</button>
+</body>
+</html>
